@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "tickit",
-    "slug": "tickit",
+  "name": "Tickit",
+  "slug": "Tickit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icons/icon.png",
