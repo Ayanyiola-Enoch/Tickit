@@ -11,7 +11,7 @@ const MyStack = () => {
             <Stack.Screen
                 name="Home"
                 component={Home}
-                options={{ title: 'Welcome', headerStyle: { backgroundColor: '#f4511e' }, headerTintColor: '#fff', headerTitleStyle: { fontWeight: 'bold' } }}
+                options={{ title: "Today's tasks", headerStyle: { backgroundColor: '#f4511e' }, headerTintColor: '#fff', headerTitleStyle: { fontWeight: 'bold' } }}
             />
             <Stack.Screen name="About" component={About} options={{ headerShown: false }} />
         </Stack.Navigator>

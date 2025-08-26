@@ -15,7 +15,7 @@ const Home = ({navigation, route}) => {
   const renderTask = ({ item }) => (
     <View style={styles.taskCard}>
       <View style={styles.iconBox} />
-      <Text style={styles.taskText && styles.check}>{item.text}</Text>
+      <Text style={styles.taskText }>{item.text}</Text>
       <TouchableOpacity
         style={[
           styles.checkbox,
@@ -48,7 +48,7 @@ const Home = ({navigation, route}) => {
     <View style={styles.container}>
       <StatusBar style="auto" backgroundColor={'#f4511e'} />
       
-      <Text style={styles.header}>Today's tasks</Text>
+      {/* <Text style={styles.header}>Today's tasks</Text> */}
       <FlatList
         data={tasks}
         renderItem={renderTask}
@@ -127,19 +127,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#4fc3f7',
   },
   inputBar: {
-    position: 'absolute',
-    bottom: 40,
-    left: 20,
-    right: 20,
+   
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 30,
+    borderRadius: SIZES.h1,
     paddingHorizontal: 20,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 4,
+    marginBottom:40,
+    marginHorizontal:20
   },
   input: {
     flex: 1,
