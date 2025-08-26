@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, StatusBar } from 'react-native'
 import React from 'react';
+import { SIZES, FONTS } from '../constants';
 
 const Home = ({navigation, route}) => {
     return (
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f0',
     },
     text: {
-        // fontSize: 20,
+        ...FONTS.body3c,
         color: '#333',
         textDecorationLine: 'underline',
     },
