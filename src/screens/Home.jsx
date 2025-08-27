@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
   Animated,
 } from "react-native";
 import { Swipeable } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SIZES, FONTS } from "../constants";
 
 const Home = ({ navigation }) => {
@@ -19,6 +20,35 @@ const Home = ({ navigation }) => {
   const [newTask, setNewTask] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
+
+  // Load tasks when component mounts
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  // Save tasks whenever tasks array changes
+  useEffect(() => {
+    saveTasks();
+  }, [tasks]);
+
+  const loadTasks = async () => {
+    try {
+      const storedTasks = await AsyncStorage.getItem('@todo_tasks');
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks));
+      }
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    }
+  };
+
+  const saveTasks = async () => {
+    try {
+      await AsyncStorage.setItem('@todo_tasks', JSON.stringify(tasks));
+    } catch (error) {
+      console.error('Error saving tasks:', error);
+    }
+  };
 
   const deleteTask = (id) => {
     setTasks((tasks) => tasks.filter((task) => task.id !== id));
