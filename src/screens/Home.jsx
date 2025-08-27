@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SIZES, FONTS } from "../constants";
 
@@ -15,9 +16,22 @@ const Home = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
 
-  // Delete task function
   const deleteTask = (id) => {
     setTasks((tasks) => tasks.filter((task) => task.id !== id));
+  };
+
+  const addTask = () => {
+    if (newTask.trim()) {
+      setTasks([
+        ...tasks,
+        { id: Date.now().toString(), text: newTask, completed: false },
+      ]);
+      setNewTask("");
+    }
+  };
+
+  const clearAllTasks = () => {
+    setTasks([]);
   };
 
   const renderTask = ({ item }) => (
@@ -38,7 +52,6 @@ const Home = ({ navigation }) => {
       >
         {item.completed ? <View style={styles.innerCircle} /> : null}
       </TouchableOpacity>
-      {/* Delete button */}
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => deleteTask(item.id)}
@@ -48,58 +61,43 @@ const Home = ({ navigation }) => {
     </View>
   );
 
-  const addTask = () => {
-    if (newTask.trim()) {
-      setTasks([
-        ...tasks,
-        { id: Date.now().toString(), text: newTask, completed: false },
-      ]);
-      setNewTask("");
-    }
-  };
-
-  const clearTask = () => {
-    if (newTask.trim()) {
-      setTasks([
-        ...tasks,
-        { id: Date.now().toString(), text: newTask, completed: false },
-      ]);
-      setNewTask("");
-    }
-  };
-
   return (
-    <View style={styles.container}>
-      <StatusBar style="auto" backgroundColor={"#f4511e"} />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <View style={styles.container}>
+        <StatusBar style="auto" backgroundColor={"#f4511e"} />
 
-      <Text
-        onPress={() => {
-          navigation.navigate("Home");
-        }}
-        style={styles.header}
-      >
-        Clear All Tasks
-      </Text>
-      <FlatList
-        data={tasks}
-        renderItem={renderTask}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 1 }}
-        showsVerticalScrollIndicator={false}
-      />
-      <KeyboardAvoidingView style={styles.inputBar}>
-        <TextInput
-          style={styles.input}
-          placeholder="Set a task"
-          placeholderTextColor="#bbb"
-          value={newTask}
-          onChangeText={setNewTask}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-          <Text style={styles.plus}>+</Text>
+        <TouchableOpacity onPress={clearAllTasks}>
+          <Text style={styles.header}>Clear All Tasks</Text>
         </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </View>
+
+        <FlatList
+          data={tasks}
+          renderItem={renderTask}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 1 }}
+          showsVerticalScrollIndicator={false}
+        />
+
+        <View style={styles.inputBar}>
+          <TextInput
+            style={styles.input}
+            placeholder="Set a task"
+            placeholderTextColor="#bbb"
+            value={newTask}
+            onChangeText={setNewTask}
+            onSubmitEditing={addTask} // Add task on Enter key
+            returnKeyType="done"
+          />
+          <TouchableOpacity style={styles.addButton} onPress={addTask}>
+            <Text style={styles.plus}>+</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
