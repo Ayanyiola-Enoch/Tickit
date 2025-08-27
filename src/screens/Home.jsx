@@ -9,12 +9,16 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from "react-native";
+import { Swipeable } from 'react-native-gesture-handler';
 import { SIZES, FONTS } from "../constants";
 
 const Home = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editingText, setEditingText] = useState("");
 
   const deleteTask = (id) => {
     setTasks((tasks) => tasks.filter((task) => task.id !== id));
@@ -34,31 +38,120 @@ const Home = ({ navigation }) => {
     setTasks([]);
   };
 
+  const startEditing = (id, text) => {
+    setEditingId(id);
+    setEditingText(text);
+  };
+
+  const saveEdit = () => {
+    if (editingText.trim()) {
+      setTasks(tasks =>
+        tasks.map(task =>
+          task.id === editingId
+            ? { ...task, text: editingText.trim() }
+            : task
+        )
+      );
+      setEditingId(null);
+      setEditingText("");
+    } else {
+      // If text is empty, delete the task
+      deleteTask(editingId);
+      setEditingId(null);
+      setEditingText("");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingText("");
+  };
+
+  // Right action for swipe (delete)
+  const renderRightActions = (taskId) => {
+    return (
+      <Animated.View style={styles.rightActions}>
+        <TouchableOpacity
+          style={styles.deleteAction}
+          onPress={() => deleteTask(taskId)}
+        >
+          <Text style={styles.deleteActionText}>Delete</Text>
+          <Text style={styles.deleteActionIcon}>🗑️</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
+
+
+
   const renderTask = ({ item }) => (
-    <View style={styles.taskCard}>
-      <View style={styles.iconBox} />
-      <Text style={[styles.taskText, item.completed && styles.lineAcross]}>
-        {item.text}
-      </Text>
-      <TouchableOpacity
-        style={[styles.checkbox, item.completed && styles.checkboxChecked]}
-        onPress={() => {
-          setTasks((tasks) =>
-            tasks.map((t) =>
-              t.id === item.id ? { ...t, completed: !t.completed } : t
-            )
-          );
-        }}
-      >
-        {item.completed ? <View style={styles.innerCircle} /> : null}
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => deleteTask(item.id)}
-      >
-        <Text style={styles.deleteIcon}>🗑️</Text>
-      </TouchableOpacity>
-    </View>
+    <Swipeable
+      renderRightActions={() => renderRightActions(item.id)}
+      rightThreshold={40}
+    >
+      <View style={styles.taskCard}>
+        <View style={styles.iconBox} />
+        {editingId === item.id ? (
+          <TextInput
+            style={styles.editInput}
+            value={editingText}
+            onChangeText={setEditingText}
+            onSubmitEditing={saveEdit}
+            onBlur={saveEdit}
+            autoFocus
+            returnKeyType="done"
+            multiline={false}
+          />
+        ) : (
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => startEditing(item.id, item.text)}
+          >
+            <Text style={[styles.taskText, item.completed && styles.lineAcross]}>
+              {item.text}
+            </Text>
+          </TouchableOpacity>
+        )}
+        
+        {editingId === item.id ? (
+          <View style={styles.editButtons}>
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={saveEdit}
+            >
+              <Text style={styles.saveIcon}>✓</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={cancelEdit}
+            >
+              <Text style={styles.cancelIcon}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <TouchableOpacity
+              style={[styles.checkbox, item.completed && styles.checkboxChecked]}
+              onPress={() => {
+                setTasks((tasks) =>
+                  tasks.map((t) =>
+                    t.id === item.id ? { ...t, completed: !t.completed } : t
+                  )
+                );
+              }}
+            >
+              {item.completed ? <View style={styles.innerCircle} /> : null}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => deleteTask(item.id)}
+            >
+              <Text style={styles.deleteIcon}>🗑️</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </Swipeable>
   );
 
   return (
@@ -74,13 +167,23 @@ const Home = ({ navigation }) => {
           <Text style={styles.header}>Clear All Tasks</Text>
         </TouchableOpacity>
 
-        <FlatList
-          data={tasks}
-          renderItem={renderTask}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 1 }}
-          showsVerticalScrollIndicator={false}
-        />
+        {tasks.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateIcon}>📝</Text>
+            <Text style={styles.emptyStateText}>No tasks yet!</Text>
+            <Text style={styles.emptyStateSubtext}>
+              Add a task below to get started
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={tasks}
+            renderItem={renderTask}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingBottom: 1 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
 
         <View style={styles.inputBar}>
           <TextInput
@@ -89,7 +192,7 @@ const Home = ({ navigation }) => {
             placeholderTextColor="#bbb"
             value={newTask}
             onChangeText={setNewTask}
-            onSubmitEditing={addTask} // Add task on Enter key
+            onSubmitEditing={addTask}
             returnKeyType="done"
           />
           <TouchableOpacity style={styles.addButton} onPress={addTask}>
@@ -111,7 +214,6 @@ const styles = StyleSheet.create({
   },
   header: {
     position: "relative",
-    // top: 0,
     ...FONTS.body4,
     color: "#aaa",
     alignSelf: "flex-end",
@@ -132,7 +234,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-
   taskText: {
     flex: 1,
     fontSize: 18,
@@ -213,5 +314,116 @@ const styles = StyleSheet.create({
   deleteIcon: {
     fontSize: 20,
     color: "#f4511e",
+  },
+  // New swipe action styles
+  rightActions: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-end",
+    marginBottom: 20,
+    marginRight: 20,
+  },
+  deleteAction: {
+    backgroundColor: "#ff4757",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "100%",
+    borderRadius: 20,
+  },
+  deleteActionText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  deleteActionIcon: {
+    fontSize: 20,
+  },
+  leftActions: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-start",
+    marginBottom: 20,
+    marginLeft: 20,
+  },
+  editAction: {
+    backgroundColor: "#3742fa",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "100%",
+    borderRadius: 20,
+  },
+  editActionText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  editActionIcon: {
+    fontSize: 20,
+    color: "#fff",
+  },
+  // Edit mode styles
+  editInput: {
+    flex: 1,
+    fontSize: 18,
+    color: "#222",
+    borderBottomWidth: 1,
+    borderBottomColor: "#3742fa",
+    paddingBottom: 2,
+    marginRight: 10,
+  },
+  editButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  saveButton: {
+    marginRight: 8,
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: "#e8f5e8",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  saveIcon: {
+    fontSize: 16,
+    color: "#2ed573",
+    fontWeight: "bold",
+  },
+  cancelButton: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: "#ffeaea",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cancelIcon: {
+    fontSize: 16,
+    color: "#ff4757",
+    fontWeight: "bold",
+  },
+  // Empty state styles
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 100,
+  },
+  emptyStateIcon: {
+    fontSize: 60,
+    marginBottom: 16,
+  },
+  emptyStateText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#666",
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: "#999",
+    textAlign: "center",
   },
 });

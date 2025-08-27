@@ -1,13 +1,16 @@
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import MyStack from "./src/navigator/MyStack";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from "expo-font";
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <MyStack />
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <MyStack />
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 
   const [fontsLoaded] = useFonts({
