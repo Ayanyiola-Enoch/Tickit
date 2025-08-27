@@ -11,14 +11,21 @@ import {
 } from "react-native";
 import { SIZES, FONTS } from "../constants";
 
-const Home = ({ navigation, route }) => {
+const Home = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
+
+  // Delete task function
+  const deleteTask = (id) => {
+    setTasks((tasks) => tasks.filter((task) => task.id !== id));
+  };
 
   const renderTask = ({ item }) => (
     <View style={styles.taskCard}>
       <View style={styles.iconBox} />
-      <Text style={[styles.taskText,item.completed && styles.lineAcross]}>{item.text}</Text>
+      <Text style={[styles.taskText, item.completed && styles.lineAcross]}>
+        {item.text}
+      </Text>
       <TouchableOpacity
         style={[styles.checkbox, item.completed && styles.checkboxChecked]}
         onPress={() => {
@@ -30,6 +37,13 @@ const Home = ({ navigation, route }) => {
         }}
       >
         {item.completed ? <View style={styles.innerCircle} /> : null}
+      </TouchableOpacity>
+      {/* Delete button */}
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => deleteTask(item.id)}
+      >
+        <Text style={styles.deleteIcon}>🗑️</Text>
       </TouchableOpacity>
     </View>
   );
@@ -44,22 +58,39 @@ const Home = ({ navigation, route }) => {
     }
   };
 
+  const clearTask = () => {
+    if (newTask.trim()) {
+      setTasks([
+        ...tasks,
+        { id: Date.now().toString(), text: newTask, completed: false },
+      ]);
+      setNewTask("");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" backgroundColor={"#f4511e"} />
 
-      {/* <Text style={styles.header}>Today's tasks</Text> */}
+      <Text
+        onPress={() => {
+          navigation.navigate("Home");
+        }}
+        style={styles.header}
+      >
+        Clear All Tasks
+      </Text>
       <FlatList
         data={tasks}
         renderItem={renderTask}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: 1 }}
         showsVerticalScrollIndicator={false}
       />
       <KeyboardAvoidingView style={styles.inputBar}>
         <TextInput
           style={styles.input}
-          placeholder="Write a task"
+          placeholder="Set a task"
           placeholderTextColor="#bbb"
           value={newTask}
           onChangeText={setNewTask}
@@ -80,12 +111,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#eceef0",
     paddingTop: SIZES.body2,
   },
-  //   header: {
-  //     marginLeft: 20,
-  //     ...FONTS.h2,
-  //     marginBottom: 30,
-  //     color: '#222',
-  //   },
+  header: {
+    position: "relative",
+    // top: 0,
+    ...FONTS.body4,
+    color: "#aaa",
+    alignSelf: "flex-end",
+    padding: SIZES.body6,
+    marginBottom: SIZES.body5,
+  },
   taskCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -119,10 +153,10 @@ const styles = StyleSheet.create({
   checkboxChecked: {
     borderColor: "#4fc3f7",
     backgroundColor: "#e3f6ff",
-     textDecorationLine:'line-through'
+    textDecorationLine: "line-through",
   },
-  lineAcross:{
-     textDecorationLine:'line-through'
+  lineAcross: {
+    textDecorationLine: "line-through",
   },
   innerCircle: {
     width: 12,
@@ -155,19 +189,31 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#eceef0",
+    backgroundColor: "#f4511e",
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 10,
   },
   plus: {
     fontSize: 32,
-    color: "#bbb",
+    color: "#fff",
     fontWeight: "bold",
   },
   text: {
     ...FONTS.body3c,
     color: "#333",
     textDecorationLine: "underline",
+  },
+  deleteButton: {
+    marginLeft: 10,
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: "#ffeaea",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteIcon: {
+    fontSize: 20,
+    color: "#f4511e",
   },
 });
