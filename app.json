@@ -1,7 +1,7 @@
 {
   "expo": {
-  "name": "Tickit",
-  "slug": "Tickit",
+    "name": "Tickit",
+    "slug": "Tickit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icons/icon.png",
@@ -20,10 +20,16 @@
         "foregroundImage": "./src/assets/icons/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.enochdmc1.Tickit"
     },
     "web": {
       "favicon": "./src/assets/icons/icon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "dcad33ed-1302-4676-8f3f-3df9a922f6a3"
+      }
     }
   }
 }
