@@ -188,7 +188,7 @@ const Home = ({ navigation }) => {
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 40}
     >
       <View style={styles.container}>
         <StatusBar style="auto" backgroundColor={"#f4511e"} />
@@ -210,25 +210,24 @@ const Home = ({ navigation }) => {
             data={tasks}
             renderItem={renderTask}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 1 }}
+            contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           />
         )}
-
-        <View style={styles.inputBar}>
-          <TextInput
-            style={styles.input}
-            placeholder="Set a task"
-            placeholderTextColor="#bbb"
-            value={newTask}
-            onChangeText={setNewTask}
-            onSubmitEditing={addTask}
-            returnKeyType="done"
-          />
-          <TouchableOpacity style={styles.addButton} onPress={addTask}>
-            <Text style={styles.plus}>+</Text>
-          </TouchableOpacity>
-        </View>
+      </View>
+      <View style={styles.inputBarAbsolute}>
+        <TextInput
+          style={styles.input}
+          placeholder="Set a task"
+          placeholderTextColor="#bbb"
+          value={newTask}
+          onChangeText={setNewTask}
+          onSubmitEditing={addTask}
+          returnKeyType="done"
+        />
+        <TouchableOpacity style={styles.addButton} onPress={addTask}>
+          <Text style={styles.plus}>+</Text>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
@@ -294,6 +293,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#4fc3f7",
   },
   inputBar: {
+    display: 'none', // Hide the old inputBar
+  },
+  inputBarAbsolute: {
+    position: 'absolute',
+    left: SIZES.h3,
+    right: SIZES.h3,
+    bottom: Platform.OS === 'ios' ? 30 : 22,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
@@ -303,8 +309,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 4,
-    marginBottom: SIZES.h1 * 1.4,
-    marginHorizontal: SIZES.h3,
   },
   input: {
     flex: 1,
