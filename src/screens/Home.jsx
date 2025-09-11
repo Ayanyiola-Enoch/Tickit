@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     borderRadius: SIZES.h1,
-    paddingHorizontal: 20,
+    paddingLeft: 20,
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -319,14 +319,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   addButton: {
-    width: 56,
-    height: 56,
+    width: 61,
+    height: 48,
     borderRadius: 28,
     backgroundColor: "#f4511e",
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 10,
-  },
+   right:0
+      },
   plus: {
     fontSize: 32,
     color: "#fff",
