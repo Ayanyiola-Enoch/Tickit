@@ -20,6 +20,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { toast } from "../utils/toast";
 
 const Home = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
@@ -84,6 +85,7 @@ const Home = ({ navigation }) => {
 
   const deleteTask = (id) => {
     setTasks((tasks) => tasks.filter((task) => task.id !== id));
+    toast.success("Task deleted");
   };
 
   const addTask = () => {
@@ -95,6 +97,21 @@ const Home = ({ navigation }) => {
       requestAnimationFrame(() => {
         listRef.current?.scrollToOffset?.({ offset: 0, animated: true });
       });
+    }
+  };
+
+  const handleAddTodo = () => {
+    const text = newTask.trim();
+    if (text) {
+      const newItem = { id: Date.now().toString(), text, completed: false };
+      setTasks((prev) => [newItem, ...prev]);
+      setNewTask("");
+      requestAnimationFrame(() => {
+        listRef.current?.scrollToOffset?.({ offset: 0, animated: true });
+      });
+      toast.success("Task added");
+    } else {
+      toast.error("Enter a task");
     }
   };
 
@@ -291,7 +308,7 @@ const Home = ({ navigation }) => {
             onSubmitEditing={addTask}
             returnKeyType="done"
           />
-          <TouchableOpacity style={styles.addButton} onPress={addTask}>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddTodo}>
             <Text style={styles.plus}>+</Text>
           </TouchableOpacity>
         </View>
@@ -315,10 +332,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SIZES.body3,
     marginBottom: SIZES.body5,
   },
-  title: {
-    ...FONTS.h2, // Assuming a larger font for title; adjust as needed
-    color: "#222",
-  },
+
   header: {
     ...FONTS.body5,
     color: "#aaa",
@@ -409,9 +423,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
   plus: {
-    fontSize: 32,
+    ...FONTS.h1,
     color: "#fff",
-    fontWeight: "bold",
   },
   text: {
     ...FONTS.body3c,
@@ -452,7 +465,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   deleteActionIcon: {
-    fontSize: 20,
+    ...FONTS.h2,
   },
   leftActions: {
     flex: 1,
@@ -469,20 +482,10 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 20,
   },
-  editActionText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  editActionIcon: {
-    fontSize: 20,
-    color: "#fff",
-  },
   // Edit mode styles
   editInput: {
     flex: 1,
-    fontSize: 18,
+    ...FONTS.body4,
     color: "#222",
     borderBottomWidth: 1,
     borderBottomColor: "#3742fa",
@@ -530,13 +533,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyStateText: {
-    fontSize: 20,
+    ...FONTS.h4,
     fontWeight: "600",
     color: "#666",
     marginBottom: 8,
   },
   emptyStateSubtext: {
-    fontSize: 14,
+    ...FONTS.body4,
     color: "#999",
     textAlign: "center",
   },

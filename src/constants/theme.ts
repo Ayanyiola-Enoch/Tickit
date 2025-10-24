@@ -62,7 +62,7 @@ export const FONTS = {
     color: "#000000",
   },
   largeTitleBold: {
-    fontFamily: "Satoshi-Bold",
+    fontFamily: "Satoshi-Black",
     fontSize: SIZES.h1 * 1.1,
     lineHeight: screenHeight * 0.05,
     color: "#000000",

@@ -15,7 +15,7 @@ const MyStack = () => {
           title: "Today's Tasks",
           headerStyle: { backgroundColor: "#f4511e" },
           headerTintColor: "#fff",
-          headerTitleStyle: { fontWeight: "bold" },
+          headerTitleStyle: { fontFamily: "Satoshi-Italic" },
         }}
       />
       <Stack.Screen

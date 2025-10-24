@@ -4,6 +4,8 @@ import MyStack from "./src/navigator/MyStack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
+import Toast from "react-native-toast-message";
+import toastConfig from "./src/constants/toastConfig";
 
 const App = () => {
   const [fontsLoaded] = useFonts({
@@ -25,8 +27,15 @@ const App = () => {
         <NavigationContainer>
           <MyStack />
         </NavigationContainer>
+        <Toast
+          config={toastConfig}
+          position="top"
+          topOffset={32}
+          visibilityTime={2200}
+        />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 };
+
 export default App;
