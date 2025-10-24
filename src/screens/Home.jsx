@@ -340,8 +340,7 @@ const styles = StyleSheet.create({
   },
   taskText: {
     flex: 1,
-    fontSize: 18,
-    color: "#222",
+    ...FONTS.body3,
   },
   checkbox: {
     width: 24,
