@@ -3,12 +3,18 @@ import React from "react";
 import { useStore } from "../../stores/useStore.js";
 
 const Contact = () => {
-  const {count} = useStore((state) => state);
+  const { count } = useStore((state) => state);
   return (
     <View>
       <Text style={styles.text}>Contact {count}</Text>
-      <Button title="Increment" onPress={() => useStore.getState().incrementAsync()} />
-        <Button title ="Decrement" onPress={()=>useStore.getState().decrement()}/>
+      <Button
+        title="Increment"
+        onPress={() => useStore.getState().incrementAsync()}
+      />
+      <Button
+        title="Decrement"
+        onPress={() => useStore.getState().decrement()}
+      />
     </View>
   );
 };

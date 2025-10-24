@@ -1,12 +1,7 @@
-// import analytics from '../assets/icons/analytics.png';
-// import appointment from '../assets/icons/appointment.png';
-// import arrowDown from '../assets/icons/arrowDown.png';
+import trash from "../assets/icons/trash.png";
 
 const icons = {
-  // analytics,
-  //   appointment,
-  // arrowDown,
-
+  trash,
 };
 
 export default icons;

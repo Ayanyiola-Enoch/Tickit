@@ -1,23 +1,30 @@
-import * as React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from '../screens/Home';
-import About from '../screens/About';
-import Contact from '../screens/Contact';
+import * as React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Home from "../screens/Home";
+import About from "../screens/About";
 
 const Stack = createNativeStackNavigator();
 
 const MyStack = () => {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="Contact"
-                component={Contact}
-                options={{ title: "Contact Us", headerStyle: { backgroundColor: '#f4511e' }, headerTintColor: '#fff', headerTitleStyle: { fontWeight: 'bold' } }}
-            />
-            <Stack.Screen name="About" component={About} options={{ headerShown: false }} />
-        </Stack.Navigator>
-
-    );
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Home"
+        component={Home}
+        options={{
+          title: "Today's Tasks",
+          headerStyle: { backgroundColor: "#f4511e" },
+          headerTintColor: "#fff",
+          headerTitleStyle: { fontWeight: "bold" },
+        }}
+      />
+      <Stack.Screen
+        name="About"
+        component={About}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
 };
 
 export default MyStack;

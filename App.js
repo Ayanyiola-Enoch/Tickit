@@ -1,15 +1,18 @@
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import MyStack from "./src/navigator/MyStack";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 
 const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <MyStack />
-      </NavigationContainer>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <MyStack />
+        </NavigationContainer>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 
