@@ -274,7 +274,12 @@ const Home = ({ navigation }) => {
             keyExtractor={(item) => item.id}
             ref={listRef}
             contentContainerStyle={{
-              paddingBottom: baseBottomOffset + 56 + 24, // Input height is 56, plus some space
+              // add keyboardHeight so last item is never hidden when input lifts
+              paddingBottom:
+                baseBottomOffset +
+                56 +
+                24 +
+                (keyboardHeight > 0 ? keyboardHeight : 0),
               paddingTop: 0,
             }}
             keyboardDismissMode={
