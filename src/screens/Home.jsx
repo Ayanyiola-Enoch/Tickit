@@ -526,7 +526,6 @@ const styles = StyleSheet.create({
     color: "#ff4757",
     fontWeight: "bold",
   },
-  // Empty state styles
   emptyState: {
     flex: 1,
     justifyContent: "center",

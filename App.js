@@ -8,6 +8,9 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import Toast from "react-native-toast-message";
 import toastConfig from "./src/constants/toastConfig";
+// import MyStack from "./src/navigator/MyStack";
+
+import Home from "./src/screens/Home";
 import MyStack from "./src/navigator/MyStack";
 
 SplashScreen.preventAutoHideAsync();
