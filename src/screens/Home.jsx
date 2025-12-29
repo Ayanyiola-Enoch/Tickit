@@ -235,7 +235,7 @@ const Home = ({ navigation }) => {
   //     ? keyboardHeight + baseBottomOffset + 4
   //     : baseBottomOffset + 4;
 
-  const KEYBOARD_EXTRA_MARGIN = 4; // <-- the “little push” you asked for
+  const KEYBOARD_EXTRA_MARGIN = 4; // <-- the “little push” you
 
   // ---- replace the old inputMarginBottom calculation ----
   const inputMarginBottom =
