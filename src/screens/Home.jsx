@@ -34,7 +34,7 @@ const Home = ({ navigation }) => {
   // Fallback offset for Android 3-button nav bars when safe area returns 0
   const baseBottomOffset = Math.max(
     insets.bottom || 0,
-    Platform.OS === "android" ? 24 : 0
+    Platform.OS === "android" ? 24 : 0,
   );
   const listRef = useRef(null);
 
@@ -91,7 +91,12 @@ const Home = ({ navigation }) => {
   const addTask = () => {
     const text = newTask.trim();
     if (text) {
-      const newItem = { id: Date.now().toString(), text, completed: false };
+      const newItem = {
+        id: Date.now().toString(),
+        text,
+        completed: false,
+        createdAt: new Date().toISOString(),
+      };
       setTasks((prev) => [newItem, ...prev]);
       setNewTask("");
       requestAnimationFrame(() => {
@@ -103,7 +108,12 @@ const Home = ({ navigation }) => {
   const handleAddTodo = () => {
     const text = newTask.trim();
     if (text) {
-      const newItem = { id: Date.now().toString(), text, completed: false };
+      const newItem = {
+        id: Date.now().toString(),
+        text,
+        completed: false,
+        createdAt: new Date().toISOString(),
+      };
       setTasks((prev) => [newItem, ...prev]);
       setNewTask("");
       requestAnimationFrame(() => {
@@ -128,8 +138,8 @@ const Home = ({ navigation }) => {
     if (editingText.trim()) {
       setTasks((tasks) =>
         tasks.map((task) =>
-          task.id === editingId ? { ...task, text: editingText.trim() } : task
-        )
+          task.id === editingId ? { ...task, text: editingText.trim() } : task,
+        ),
       );
       setEditingId(null);
       setEditingText("");
@@ -188,6 +198,15 @@ const Home = ({ navigation }) => {
             >
               {item.text}
             </Text>
+            {item.createdAt && (
+              <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
+                {new Date(item.createdAt).toLocaleDateString()} •{" "}
+                {new Date(item.createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Text>
+            )}
           </TouchableOpacity>
         )}
 
@@ -210,8 +229,8 @@ const Home = ({ navigation }) => {
               onPress={() => {
                 setTasks((tasks) =>
                   tasks.map((t) =>
-                    t.id === item.id ? { ...t, completed: !t.completed } : t
-                  )
+                    t.id === item.id ? { ...t, completed: !t.completed } : t,
+                  ),
                 );
               }}
             >
@@ -242,8 +261,8 @@ const Home = ({ navigation }) => {
     Platform.OS === "ios"
       ? keyboardHeight + baseBottomOffset + KEYBOARD_EXTRA_MARGIN
       : keyboardHeight > 0
-      ? keyboardHeight + KEYBOARD_EXTRA_MARGIN // Android: push up a bit
-      : baseBottomOffset + KEYBOARD_EXTRA_MARGIN; // Android: normal rest position
+        ? keyboardHeight + KEYBOARD_EXTRA_MARGIN // Android: push up a bit
+        : baseBottomOffset + KEYBOARD_EXTRA_MARGIN; // Android: normal rest position
 
   return (
     <KeyboardAvoidingView
