@@ -28,7 +28,7 @@ const Home = ({ navigation }) => {
   const [newTask, setNewTask] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
-  const [openModal, setOpenModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const insets = useSafeAreaInsets
     ? useSafeAreaInsets()
@@ -129,7 +129,6 @@ const Home = ({ navigation }) => {
 
   const clearAllTasks = () => {
     setTasks([]);
-    setOpenModal(false);
   };
 
   const startEditing = (id, text) => {
@@ -165,8 +164,7 @@ const Home = ({ navigation }) => {
         <TouchableOpacity
           style={styles.deleteAction}
           onPress={() => {
-            setOpenModal(true);
-            deleteTask(taskId);
+            setTaskToDelete(taskId);
           }}
         >
           <Text style={styles.deleteActionText}>Delete</Text>
@@ -244,7 +242,7 @@ const Home = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.deleteButton}
-              onPress={() => deleteTask(item.id)}
+              onPress={() => setTaskToDelete(item.id)}
             >
               <Image source={icons.trash} style={styles.deleteIcon} />
             </TouchableOpacity>
@@ -350,9 +348,37 @@ const Home = ({ navigation }) => {
         </View>
       </SafeAreaView>
 
-      <Modal onRequestClose={() => setOpenModal(false)} visible={openModal}>
-        <View>
-          <Text>Are you sure you want to delete </Text>
+      <Modal
+        visible={!!taskToDelete}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setTaskToDelete(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              Are you sure you want to delete this task?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setTaskToDelete(null)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={() => {
+                  if (taskToDelete) {
+                    deleteTask(taskToDelete);
+                    setTaskToDelete(null);
+                  }
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </Modal>
     </KeyboardAvoidingView>
@@ -584,5 +610,50 @@ const styles = StyleSheet.create({
     ...FONTS.body4,
     color: "#999",
     textAlign: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalText: {
+    ...FONTS.body3,
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#333",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#e0e0e0",
+  },
+  cancelButtonText: {
+    color: "#666",
+    fontWeight: "600",
+  },
+  confirmButton: {
+    backgroundColor: "#ff4757",
+  },
+  confirmButtonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });
