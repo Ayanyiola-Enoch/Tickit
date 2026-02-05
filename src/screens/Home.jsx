@@ -12,6 +12,7 @@ import {
   Image,
   Animated,
   Keyboard,
+  Modal,
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,6 +28,7 @@ const Home = ({ navigation }) => {
   const [newTask, setNewTask] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
+  const [openModal, setOpenModal] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const insets = useSafeAreaInsets
     ? useSafeAreaInsets()
@@ -127,6 +129,7 @@ const Home = ({ navigation }) => {
 
   const clearAllTasks = () => {
     setTasks([]);
+    setOpenModal(false);
   };
 
   const startEditing = (id, text) => {
@@ -337,6 +340,12 @@ const Home = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+
+      <Modal onRequestClose={() => setOpenModal(false)} visible={openModal}>
+        <View>
+          <Text>Are you sure you want to delete </Text>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
