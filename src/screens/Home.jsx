@@ -164,7 +164,10 @@ const Home = ({ navigation }) => {
       <Animated.View style={styles.rightActions}>
         <TouchableOpacity
           style={styles.deleteAction}
-          onPress={() => deleteTask(taskId)}
+          onPress={() => {
+            setOpenModal(true);
+            deleteTask(taskId);
+          }}
         >
           <Text style={styles.deleteActionText}>Delete</Text>
           <Text style={styles.deleteActionIcon}>🗑️</Text>
@@ -276,11 +279,17 @@ const Home = ({ navigation }) => {
       <View style={styles.container}>
         <StatusBar style="auto" backgroundColor={"#f4511e"} />
         <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={clearAllTasks}>
-            <Text style={styles.header}>Clear All Tasks</Text>
-          </TouchableOpacity>
+          {tasks.length > 0 && (
+            <Text style={{ ...FONTS.h4, color: "#333" }}>
+              Uncompleted Tasks
+            </Text>
+          )}
+          {tasks.length > 0 && (
+            <TouchableOpacity onPress={clearAllTasks}>
+              <Text style={styles.header}>Clear All Tasks</Text>
+            </TouchableOpacity>
+          )}
         </View>
-
         {tasks.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateIcon}>📝</Text>
@@ -361,7 +370,8 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignSelf: "flex-end",
+    // alignSelf: "flex-end",
+    alignItems: "center",
     paddingHorizontal: SIZES.body3,
     marginBottom: SIZES.body5,
   },
