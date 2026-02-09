@@ -28,6 +28,7 @@ const Home = ({ navigation }) => {
   const [newTask, setNewTask] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
+  const [completedTask, setCompletedTask] = useState([]);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const insets = useSafeAreaInsets
@@ -136,6 +137,10 @@ const Home = ({ navigation }) => {
     setEditingText(text);
   };
 
+  const handleCompleted = (id) => {
+    setCompletedTask(tasks.push(id));
+    console.log("complete....", completedTask);
+  };
   const saveEdit = () => {
     if (editingText.trim()) {
       setTasks((tasks) =>
@@ -236,6 +241,7 @@ const Home = ({ navigation }) => {
                     t.id === item.id ? { ...t, completed: !t.completed } : t,
                   ),
                 );
+                handleCompleted(item);
               }}
             >
               {item.completed ? <View style={styles.innerCircle} /> : null}
@@ -249,6 +255,23 @@ const Home = ({ navigation }) => {
           </>
         )}
       </View>
+
+      {completedTask ? (
+        <View style={{ marginTop: SIZES.h2 }}>
+          <FlatList
+            data={completedTask}
+            renderItem={(item) => {
+              return (
+                <View style={{ marginHorizontal: SIZES.h2 }}>
+                  <Text style={{ ...FONTS.h4, color: "#333" }}>
+                    Completed Tasks
+                  </Text>
+                </View>
+              );
+            }}
+          />
+        </View>
+      ) : null}
     </Swipeable>
   );
 
@@ -319,6 +342,7 @@ const Home = ({ navigation }) => {
           />
         )}
       </View>
+
       {/* Bottom input anchored to safe area and lifts above keyboard */}
       <SafeAreaView
         edges={["bottom"]}
