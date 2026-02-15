@@ -31,6 +31,7 @@ const Home = ({ navigation }) => {
   const [completedTask, setCompletedTask] = useState([]);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [showInstructionModal, setShowInstructionModal] = useState(false);
   const insets = useSafeAreaInsets
     ? useSafeAreaInsets()
     : { top: 0, bottom: 0, left: 0, right: 0 };
@@ -48,6 +49,16 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     saveTasks();
   }, [tasks]);
+
+  useEffect(() => {
+    // Show instruction modal immediately on mount
+    setShowInstructionModal(true);
+    const timer = setTimeout(() => {
+      setShowInstructionModal(false);
+    }, 5000); // Auto-hide after 3 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Keyboard listeners to move input above the keyboard
   useEffect(() => {
@@ -372,6 +383,22 @@ const Home = ({ navigation }) => {
         </View>
       </SafeAreaView>
 
+      {/* Instruction Modal */}
+      <Modal
+        visible={showInstructionModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.instructionModalOverlay}>
+          <View style={styles.instructionModalContent}>
+            <Text style={styles.instructionModalText}>
+              💡 Tip: Swipe left on a task to reveal the delete button, then tap
+              to delete it!
+            </Text>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         visible={!!taskToDelete}
         transparent={true}
@@ -679,5 +706,28 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  instructionModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  instructionModalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    width: "85%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  instructionModalText: {
+    ...FONTS.body3,
+    textAlign: "center",
+    color: "#333",
+    lineHeight: 24,
   },
 });
