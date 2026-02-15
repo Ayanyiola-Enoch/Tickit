@@ -28,7 +28,7 @@ const Home = ({ navigation }) => {
   const [newTask, setNewTask] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
-  const [completedTask, setCompletedTask] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [showInstructionModal, setShowInstructionModal] = useState(false);
@@ -44,6 +44,7 @@ const Home = ({ navigation }) => {
 
   useEffect(() => {
     loadTasks();
+    loadCompletedTasks();
   }, []);
 
   useEffect(() => {
@@ -51,11 +52,15 @@ const Home = ({ navigation }) => {
   }, [tasks]);
 
   useEffect(() => {
+    saveCompletedTasks();
+  }, [completedTasks]);
+
+  useEffect(() => {
     // Show instruction modal immediately on mount
     setShowInstructionModal(true);
     const timer = setTimeout(() => {
       setShowInstructionModal(false);
-    }, 5000); // Auto-hide after 3 seconds
+    }, 5000); // Auto-hide after 5 seconds
 
     return () => clearTimeout(timer);
   }, []);
@@ -89,6 +94,19 @@ const Home = ({ navigation }) => {
     }
   };
 
+  const loadCompletedTasks = async () => {
+    try {
+      const storedCompletedTasks = await AsyncStorage.getItem(
+        "@todo_completed_tasks",
+      );
+      if (storedCompletedTasks) {
+        setCompletedTasks(JSON.parse(storedCompletedTasks));
+      }
+    } catch (error) {
+      console.error("Error loading completed tasks:", error);
+    }
+  };
+
   const saveTasks = async () => {
     try {
       await AsyncStorage.setItem("@todo_tasks", JSON.stringify(tasks));
@@ -97,26 +115,21 @@ const Home = ({ navigation }) => {
     }
   };
 
-  const deleteTask = (id) => {
-    setTasks((tasks) => tasks.filter((task) => task.id !== id));
-    toast.success("Task deleted");
+  const saveCompletedTasks = async () => {
+    try {
+      await AsyncStorage.setItem(
+        "@todo_completed_tasks",
+        JSON.stringify(completedTasks),
+      );
+    } catch (error) {
+      console.error("Error saving completed tasks:", error);
+    }
   };
 
-  const addTask = () => {
-    const text = newTask.trim();
-    if (text) {
-      const newItem = {
-        id: Date.now().toString(),
-        text,
-        completed: false,
-        createdAt: new Date().toISOString(),
-      };
-      setTasks((prev) => [newItem, ...prev]);
-      setNewTask("");
-      requestAnimationFrame(() => {
-        listRef.current?.scrollToOffset?.({ offset: 0, animated: true });
-      });
-    }
+  const deleteTask = (id) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+    setCompletedTasks((prev) => prev.filter((task) => task.id !== id));
+    toast.success("Task deleted");
   };
 
   const handleAddTodo = () => {
@@ -125,7 +138,6 @@ const Home = ({ navigation }) => {
       const newItem = {
         id: Date.now().toString(),
         text,
-        completed: false,
         createdAt: new Date().toISOString(),
       };
       setTasks((prev) => [newItem, ...prev]);
@@ -149,9 +161,15 @@ const Home = ({ navigation }) => {
   };
 
   const handleCompleted = (id) => {
-    setCompletedTask(tasks.push(id));
-    console.log("complete....", completedTask);
+    const taskToComplete = tasks.find((task) => task.id === id);
+    if (taskToComplete) {
+      // Remove from tasks and add to completedTasks
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+      setCompletedTasks((prevCompleted) => [taskToComplete, ...prevCompleted]);
+      toast.success("Task completed!");
+    }
   };
+
   const saveEdit = () => {
     if (editingText.trim()) {
       setTasks((tasks) =>
@@ -190,6 +208,42 @@ const Home = ({ navigation }) => {
     );
   };
 
+  const renderCompletedTask = ({ item }) => (
+    <View style={[styles.taskCard, styles.completedTaskCard]}>
+      <View style={styles.iconBox} />
+      <TouchableOpacity
+        style={{ flex: 1 }}
+        onPress={() => {
+          // Move back to uncompleted tasks
+          setCompletedTasks((prev) =>
+            prev.filter((task) => task.id !== item.id),
+          );
+          setTasks((prev) => [{ ...item }, ...prev]);
+          toast.info("Task moved back to uncompleted");
+        }}
+      >
+        <Text style={[styles.taskText, styles.completedTaskText]}>
+          {item.text}
+        </Text>
+        {item.createdAt && (
+          <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
+            {new Date(item.createdAt).toLocaleDateString()} •{" "}
+            {new Date(item.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
+        )}
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => setTaskToDelete(item.id)}
+      >
+        <Image source={icons.trash} style={styles.deleteIcon} />
+      </TouchableOpacity>
+    </View>
+  );
+
   const renderTask = ({ item }) => (
     <Swipeable
       renderRightActions={() => renderRightActions(item.id)}
@@ -213,11 +267,7 @@ const Home = ({ navigation }) => {
             style={{ flex: 1 }}
             onPress={() => startEditing(item.id, item.text)}
           >
-            <Text
-              style={[styles.taskText, item.completed && styles.lineAcross]}
-            >
-              {item.text}
-            </Text>
+            <Text style={styles.taskText}>{item.text}</Text>
             {item.createdAt && (
               <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
                 {new Date(item.createdAt).toLocaleDateString()} •{" "}
@@ -242,20 +292,10 @@ const Home = ({ navigation }) => {
         ) : (
           <>
             <TouchableOpacity
-              style={[
-                styles.checkbox,
-                item.completed && styles.checkboxChecked,
-              ]}
-              onPress={() => {
-                setTasks((tasks) =>
-                  tasks.map((t) =>
-                    t.id === item.id ? { ...t, completed: !t.completed } : t,
-                  ),
-                );
-                handleCompleted(item);
-              }}
+              style={styles.checkbox}
+              onPress={() => handleCompleted(item.id)}
             >
-              {item.completed ? <View style={styles.innerCircle} /> : null}
+              {/* Always unchecked for uncompleted tasks */}
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.deleteButton}
@@ -266,33 +306,10 @@ const Home = ({ navigation }) => {
           </>
         )}
       </View>
-
-      {completedTask ? (
-        <View style={{ marginTop: SIZES.h2 }}>
-          <FlatList
-            data={completedTask}
-            renderItem={(item) => {
-              return (
-                <View style={{ marginHorizontal: SIZES.h2 }}>
-                  <Text style={{ ...FONTS.h4, color: "#333" }}>
-                    Completed Tasks
-                  </Text>
-                </View>
-              );
-            }}
-          />
-        </View>
-      ) : null}
     </Swipeable>
   );
 
-  // Platform-specific margin for input bar
-  // const inputMarginBottom =
-  //   Platform.OS === "ios"
-  //     ? keyboardHeight + baseBottomOffset + 4
-  //     : baseBottomOffset + 4;
-
-  const KEYBOARD_EXTRA_MARGIN = 4; // <-- the “little push” you
+  const KEYBOARD_EXTRA_MARGIN = 4; // <-- the “little push”
 
   // ---- replace the old inputMarginBottom calculation ----
   const inputMarginBottom =
@@ -313,7 +330,7 @@ const Home = ({ navigation }) => {
         <View style={styles.headerContainer}>
           {tasks.length > 0 && (
             <Text style={{ ...FONTS.h4, color: "#333" }}>
-              Uncompleted Tasks
+              Uncompleted Tasks ({tasks.length})
             </Text>
           )}
           {tasks.length > 0 && (
@@ -322,7 +339,7 @@ const Home = ({ navigation }) => {
             </TouchableOpacity>
           )}
         </View>
-        {tasks.length === 0 ? (
+        {tasks.length === 0 && completedTasks.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateIcon}>📝</Text>
             <Text style={styles.emptyStateText}>No tasks yet!</Text>
@@ -331,26 +348,47 @@ const Home = ({ navigation }) => {
             </Text>
           </View>
         ) : (
-          <FlatList
-            data={tasks}
-            renderItem={renderTask}
-            keyExtractor={(item) => item.id}
-            ref={listRef}
-            contentContainerStyle={{
-              // add keyboardHeight so last item is never hidden when input lifts
-              paddingBottom:
-                baseBottomOffset +
-                56 +
-                24 +
-                (keyboardHeight > 0 ? keyboardHeight : 0),
-              paddingTop: 0,
-            }}
-            keyboardDismissMode={
-              Platform.OS === "ios" ? "interactive" : "on-drag"
-            }
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          />
+          <>
+            <FlatList
+              data={tasks}
+              renderItem={renderTask}
+              keyExtractor={(item) => item.id}
+              ref={listRef}
+              contentContainerStyle={{
+                // add keyboardHeight so last item is never hidden when input lifts
+                paddingBottom:
+                  baseBottomOffset +
+                  56 +
+                  24 +
+                  (keyboardHeight > 0 ? keyboardHeight : 0),
+                paddingTop: 0,
+              }}
+              keyboardDismissMode={
+                Platform.OS === "ios" ? "interactive" : "on-drag"
+              }
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            />
+            {completedTasks.length > 0 && (
+              <View style={styles.completedSection}>
+                <Text
+                  style={{
+                    ...FONTS.h4,
+                    color: "#333",
+                    marginBottom: SIZES.body3,
+                  }}
+                >
+                  Completed Tasks ({completedTasks.length})
+                </Text>
+                <FlatList
+                  data={completedTasks}
+                  renderItem={renderCompletedTask}
+                  keyExtractor={(item) => item.id}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
+            )}
+          </>
         )}
       </View>
 
@@ -374,7 +412,7 @@ const Home = ({ navigation }) => {
             placeholderTextColor="#bbb"
             value={newTask}
             onChangeText={setNewTask}
-            onSubmitEditing={addTask}
+            onSubmitEditing={handleAddTodo}
             returnKeyType="done"
           />
           <TouchableOpacity style={styles.addButton} onPress={handleAddTodo}>
@@ -463,7 +501,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 18,
@@ -485,14 +523,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
-  },
-  checkboxChecked: {
-    borderColor: "#2ed573",
-    backgroundColor: "#e3f6ff",
-    textDecorationLine: "line-through",
-  },
-  lineAcross: {
-    textDecorationLine: "line-through",
   },
   innerCircle: {
     width: 12,
@@ -534,9 +564,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   addButton: {
-    width: 65,
+    width: 55,
     height: 55,
-    borderRadius: 28,
+    borderRadius: 27.5,
     backgroundColor: "#f4511e",
     alignItems: "center",
     justifyContent: "center",
@@ -567,7 +597,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "flex-end",
-    marginBottom: 20,
+    marginBottom: 10,
     marginRight: 20,
   },
   deleteAction: {
@@ -591,7 +621,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "flex-start",
-    marginBottom: 20,
+    marginBottom: 10,
     marginLeft: 20,
   },
   editAction: {
@@ -729,5 +759,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#333",
     lineHeight: 24,
+  },
+  completedSection: {
+    marginTop: SIZES.body2,
+    paddingHorizontal: SIZES.body3,
+  },
+  completedTaskCard: {
+    opacity: 0.7,
+    backgroundColor: "#f8f9fa",
+  },
+  completedTaskText: {
+    textDecorationLine: "line-through",
+    color: "#666",
   },
 });
