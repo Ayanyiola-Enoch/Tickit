@@ -349,52 +349,55 @@ const Home = ({ navigation }) => {
             </Text>
           </View>
         ) : (
-          <>
-            <FlatList
-              data={tasks}
-              renderItem={renderTask}
-              keyExtractor={(item) => item.id}
-              ref={listRef}
-              contentContainerStyle={{
-                // add keyboardHeight so last item is never hidden when input lifts
-                paddingBottom:
-                  baseBottomOffset +
-                  56 +
-                  24 +
-                  (keyboardHeight > 0 ? keyboardHeight : 0),
-                paddingTop: 0,
-              }}
-              keyboardDismissMode={
-                Platform.OS === "ios" ? "interactive" : "on-drag"
-              }
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            />
-
-            <Text style={{ ...FONTS.h4, color: "#333" }}>
-              Uncompleted Tasks ({tasks.length})
-            </Text>
-
-            {completedTasks.length > 0 && (
-              <View style={styles.completedSection}>
-                <Text
-                  style={{
-                    ...FONTS.h4,
-                    color: "#333",
-                    marginBottom: SIZES.body3,
-                  }}
-                >
-                  Completed Tasks ({completedTasks.length})
-                </Text>
-                <FlatList
-                  data={completedTasks}
-                  renderItem={renderCompletedTask}
-                  keyExtractor={(item) => item.id}
-                  showsVerticalScrollIndicator={false}
-                />
-              </View>
-            )}
-          </>
+          <FlatList
+            data={[]}
+            ListHeaderComponent={
+              <>
+                {tasks.length > 0 && (
+                  <FlatList
+                    data={tasks}
+                    renderItem={renderTask}
+                    keyExtractor={(item) => item.id}
+                    ref={listRef}
+                    scrollEnabled={false}
+                    showsVerticalScrollIndicator={false}
+                  />
+                )}
+                {completedTasks.length > 0 && (
+                  <View style={styles.completedSection}>
+                    <Text
+                      style={{
+                        ...FONTS.h4,
+                        color: "#333",
+                        marginBottom: SIZES.body3,
+                      }}
+                    >
+                      Completed Tasks ({completedTasks.length})
+                    </Text>
+                    <FlatList
+                      data={completedTasks}
+                      renderItem={renderCompletedTask}
+                      keyExtractor={(item) => item.id}
+                      scrollEnabled={false}
+                      showsVerticalScrollIndicator={false}
+                    />
+                  </View>
+                )}
+              </>
+            }
+            contentContainerStyle={{
+              paddingBottom:
+                baseBottomOffset +
+                56 +
+                24 +
+                (keyboardHeight > 0 ? keyboardHeight : 0),
+            }}
+            keyboardDismissMode={
+              Platform.OS === "ios" ? "interactive" : "on-drag"
+            }
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          />
         )}
       </View>
 
