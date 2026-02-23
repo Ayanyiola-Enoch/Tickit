@@ -235,12 +235,12 @@ const Home = ({ navigation }) => {
           </Text>
         )}
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => setTaskToDelete(item.id)}
       >
         <Image source={icons.trash} style={styles.deleteIcon} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 
@@ -248,6 +248,7 @@ const Home = ({ navigation }) => {
     <Swipeable
       renderRightActions={() => renderRightActions(item.id)}
       rightThreshold={40}
+      onSwipeableRightOpen={() => setTaskToDelete(item.id)}
     >
       <View style={styles.taskCard}>
         <View style={styles.iconBox} />
@@ -430,8 +431,8 @@ const Home = ({ navigation }) => {
         <View style={styles.instructionModalOverlay}>
           <View style={styles.instructionModalContent}>
             <Text style={styles.instructionModalText}>
-              💡 Tip: Swipe left on a task to reveal the delete button, then tap
-              to delete it!
+              💡 Tip: Swipe left on a task to reveal the delete modal, then tap
+              delete to remove the task!
             </Text>
           </View>
         </View>
@@ -485,7 +486,6 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    // alignSelf: "flex-end",
     alignItems: "center",
     paddingHorizontal: SIZES.body3,
     marginBottom: SIZES.body5,
