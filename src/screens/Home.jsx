@@ -370,6 +370,11 @@ const Home = ({ navigation }) => {
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             />
+
+            <Text style={{ ...FONTS.h4, color: "#333" }}>
+              Uncompleted Tasks ({tasks.length})
+            </Text>
+
             {completedTasks.length > 0 && (
               <View style={styles.completedSection}>
                 <Text
@@ -761,8 +766,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   completedSection: {
-    marginTop: SIZES.body2,
-    paddingHorizontal: SIZES.body3,
+    marginTop: SIZES.radius * 0.2,
+    paddingHorizontal: SIZES.body2,
   },
   completedTaskCard: {
     opacity: 0.7,
