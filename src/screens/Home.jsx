@@ -153,6 +153,7 @@ const Home = ({ navigation }) => {
 
   const clearAllTasks = () => {
     setTasks([]);
+    setCompletedTasks([]);
   };
 
   const startEditing = (id, text) => {
