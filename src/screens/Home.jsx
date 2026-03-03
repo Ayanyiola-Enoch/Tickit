@@ -156,6 +156,11 @@ const Home = ({ navigation }) => {
     setCompletedTasks([]);
   };
 
+  const clearCompletedTasks = () => {
+    setCompletedTasks([]);
+    toast.success("All completed tasks cleared");
+  };
+
   const startEditing = (id, text) => {
     setEditingId(id);
     setEditingText(text);
@@ -207,6 +212,40 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
       </Animated.View>
     );
+  };
+
+  // Create combined data array for single FlatList
+  const getCombinedData = () => {
+    const combinedData = [];
+
+    // Add header for uncompleted tasks if there are any
+    if (tasks.length > 0) {
+      combinedData.push({
+        id: "uncompleted-header",
+        type: "header",
+        title: `Uncompleted Tasks (${tasks.length})`,
+        showClearAll: true,
+      });
+      // Add all uncompleted tasks
+      combinedData.push(...tasks.map((task) => ({ ...task, type: "task" })));
+    }
+
+    // Add header for completed tasks if there are any
+    if (completedTasks.length > 0) {
+      combinedData.push({
+        id: "completed-header",
+        type: "header",
+        title: `Completed Tasks (${completedTasks.length})`,
+        showClearAll: false,
+        showClearCompleted: true,
+      });
+      // Add all completed tasks
+      combinedData.push(
+        ...completedTasks.map((task) => ({ ...task, type: "completed" })),
+      );
+    }
+
+    return combinedData;
   };
 
   const renderCompletedTask = ({ item }) => (
@@ -310,7 +349,29 @@ const Home = ({ navigation }) => {
       </View>
     </Swipeable>
   );
-
+  const renderCombinedItem = ({ item }) => {
+    if (item.type === "header") {
+      return (
+        <View style={styles.sectionHeader}>
+          <Text style={{ ...FONTS.h4, color: "#333" }}>{item.title}</Text>
+          {item.showClearAll && (
+            <TouchableOpacity onPress={clearAllTasks}>
+              <Text style={styles.header}>Clear All Tasks</Text>
+            </TouchableOpacity>
+          )}
+          {item.showClearCompleted && (
+            <TouchableOpacity onPress={clearCompletedTasks}>
+              <Text style={styles.header}>Clear Tasks</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      );
+    } else if (item.type === "completed") {
+      return renderCompletedTask({ item });
+    } else {
+      return renderTask({ item });
+    }
+  };
   const KEYBOARD_EXTRA_MARGIN = 4; // <-- the “little push”
 
   // ---- replace the old inputMarginBottom calculation ----
@@ -329,18 +390,7 @@ const Home = ({ navigation }) => {
     >
       <View style={styles.container}>
         <StatusBar style="auto" backgroundColor={"#f4511e"} />
-        <View style={styles.headerContainer}>
-          {tasks.length > 0 && (
-            <Text style={{ ...FONTS.h4, color: "#333" }}>
-              Uncompleted Tasks ({tasks.length})
-            </Text>
-          )}
-          {tasks.length > 0 && (
-            <TouchableOpacity onPress={clearAllTasks}>
-              <Text style={styles.header}>Clear All Tasks</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+
         {tasks.length === 0 && completedTasks.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateIcon}>📝</Text>
@@ -351,41 +401,10 @@ const Home = ({ navigation }) => {
           </View>
         ) : (
           <FlatList
-            data={[]}
-            ListHeaderComponent={
-              <>
-                {tasks.length > 0 && (
-                  <FlatList
-                    data={tasks}
-                    renderItem={renderTask}
-                    keyExtractor={(item) => item.id}
-                    ref={listRef}
-                    scrollEnabled={false}
-                    showsVerticalScrollIndicator={false}
-                  />
-                )}
-                {completedTasks.length > 0 && (
-                  <View style={styles.completedSection}>
-                    <Text
-                      style={{
-                        ...FONTS.h4,
-                        color: "#333",
-                        marginBottom: SIZES.body3,
-                      }}
-                    >
-                      Completed Tasks ({completedTasks.length})
-                    </Text>
-                    <FlatList
-                      data={completedTasks}
-                      renderItem={renderCompletedTask}
-                      keyExtractor={(item) => item.id}
-                      scrollEnabled={false}
-                      showsVerticalScrollIndicator={false}
-                    />
-                  </View>
-                )}
-              </>
-            }
+            data={getCombinedData()}
+            renderItem={renderCombinedItem}
+            keyExtractor={(item) => item.id}
+            ref={listRef}
             contentContainerStyle={{
               paddingBottom:
                 baseBottomOffset +
@@ -522,6 +541,13 @@ const styles = StyleSheet.create({
   taskText: {
     flex: 1,
     ...FONTS.body3,
+  },
+  iconBox: {
+    width: 4,
+    height: 40,
+    backgroundColor: "#f4511e",
+    borderRadius: 2,
+    marginRight: 15,
   },
   checkbox: {
     width: 24,
@@ -772,6 +798,14 @@ const styles = StyleSheet.create({
   completedSection: {
     marginTop: SIZES.radius * 0.2,
     paddingHorizontal: SIZES.body2,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: SIZES.body3,
+    marginBottom: SIZES.body5,
+    marginTop: SIZES.body3,
   },
   completedTaskCard: {
     opacity: 0.7,
